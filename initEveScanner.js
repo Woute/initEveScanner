@@ -1,16 +1,17 @@
-var Promise = require('bluebird');
-var rp = require('request-promise');
-var fs = Promise.promisifyAll(require('fs'));
+'use strict';
+let Promise = require('bluebird');
+let rp = require('request-promise');
+let fs = Promise.promisifyAll(require('fs'));
 
 function getSystems(input, regionName) {
-    var systems = {};
-    var title = '';
+    let systems = {};
+    let title = '';
 	/// Reads the user input line by line and convert it to a JavaScript Object
-	var lines = input.split('<symbol id="def');
-    var nameRegex = /.*<a xlink:href="http:\/\/evemaps.dotlan.net\/map\/([^"]+).*/
-    var nameRegex2 = /.*<a xlink:href="http:\/\/evemaps.dotlan.net\/system\/([^"]+).*/
-    for (var i = 1 ; i < lines.length - 1 ; i++) {
-        var id = lines[i].substr(0, lines[i].indexOf('"'));
+	let lines = input.split('<symbol id="def');
+    let nameRegex = /.*<a xlink:href="http:\/\/evemaps.dotlan.net\/map\/([^"]+).*/
+    let nameRegex2 = /.*<a xlink:href="http:\/\/evemaps.dotlan.net\/system\/([^"]+).*/
+    for (let i = 1 ; i < lines.length - 1 ; i++) {
+        let id = lines[i].substr(0, lines[i].indexOf('"'));
         if (nameRegex.test(lines[i])) {
             systems[id] = '/' + nameRegex.exec(lines[i])[1];
         } else if (nameRegex2.test(lines[i])) {
@@ -21,8 +22,8 @@ function getSystems(input, regionName) {
 }
 
 function editIndex(input, regionName, systems) {
-    for (var id in systems) {
-        var replacement = '';
+    for (let id in systems) {
+        let replacement = '';
         if (regionName == '') {
             title = 'New Eden';
             replacement = 'xlink:href="#def' + id + '" onclick="goTo(\'' + systems[id] + '/index\');" />'
@@ -38,7 +39,7 @@ function editIndex(input, regionName, systems) {
     input = input.replace(/<g id="controls"[.\s\S]*\]\]><\/script>/m, '');
     input = input.replace(/onload="init\(evt\)"[^>]*>/, '>');
     input += '\n</html>';
-    var header = '<!DOCTYPE html>\n<html>\n	<head>\n		<meta charset="utf-8" />\n		<meta content="True" name="Handheld">\n		<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">\n		<link rel="stylesheet" href="/resources/style/index.css" media="all"/>\n        <script src="/resources/scripts/common.js" type=text/javascript></script>\n		<title>' + title + '</title>\n	</head>\n   <input id="SSOButton" type="image" src="/resources/images/EVE_SSO_Login_Buttons_Large_Black.png" onclick="authSSO();"/>\n    ';
+    let header = '<!DOCTYPE html>\n<html>\n	<head>\n		<meta charset="utf-8" />\n		<meta content="True" name="Handheld">\n		<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">\n		<link rel="stylesheet" href="/resources/style/index.css" media="all"/>\n        <script src="/resources/scripts/common.js" type=text/javascript></script>\n		<title>' + title + '</title>\n	</head>\n   <input id="SSOButton" type="image" src="/resources/images/EVE_SSO_Login_Buttons_Large_Black.png" onclick="authSSO();"/>\n    ';
     input = header + input;
     return input;
 }
@@ -57,14 +58,14 @@ function writeSystem(regionName, dir, id, data, system) {
 
 function createSystems(regionName, dir, model, systems) {
     return new Promise(function(resolve, reject) {
-        var promises = [];
+        let promises = [];
         Promise.resolve(true)
         .then(() => {
-            for (var i = 0 ; i < Object.keys(systems).length ; ++i) {
-                var id = Object.keys(systems)[i];
-                var name = systems[id];
+            for (let i = 0 ; i < Object.keys(systems).length ; ++i) {
+                let id = Object.keys(systems)[i];
+                let name = systems[id];
                 if (!name.match('/')) {
-                    var data = model.replace('__title__', name);
+                    let data = model.replace('__title__', name);
                     promises.push(writeSystem(regionName, dir, id, data, name));
                 }
             }
@@ -83,8 +84,8 @@ function createSystems(regionName, dir, model, systems) {
 
 function createRegion(regionName, dir, model) {
     return new Promise(function(resolve, reject) {
-        var url = 'http://evemaps.dotlan.net/svg/';
-        var systems = {};
+        let url = 'http://evemaps.dotlan.net/svg/';
+        let systems = {};
         if (regionName == '') {
             url += 'New_Eden';
         } else {
@@ -102,7 +103,7 @@ function createRegion(regionName, dir, model) {
         })
         .then(data => {
             systems = getSystems(data, regionName);
-            var result = editIndex(data, regionName, systems);
+            let result = editIndex(data, regionName, systems);
             return fs.writeFileAsync(dir + '/' + regionName + '/index.html', result, 'utf8');
         })
         .then(() => {
@@ -124,16 +125,16 @@ function main() {
         console.log('Usage : node populateEveScanner.js pathToEveScannerDirectory');
         return false;
     }
-    var dir = process.argv[2];
-    var url = 'http://evemaps.dotlan.net/svg/New_Eden.dark.svg';
-    var regions = {};
-    var promises = [];
+    let dir = process.argv[2];
+    let url = 'http://evemaps.dotlan.net/svg/New_Eden.dark.svg';
+    let regions = {};
+    let promises = [];
     rp({ url:url })
     .then(data => {
-        var lines = data.split('<symbol id="def');
-        var nameRegex = /.*<a xlink:href="http:\/\/evemaps.dotlan.net\/map\/([^"]+).*/
-        for (var i = 1 ; i < lines.length - 2 ; i++) {
-            var id = lines[i].substr(0, lines[i].indexOf('"'));
+        let lines = data.split('<symbol id="def');
+        let nameRegex = /.*<a xlink:href="http:\/\/evemaps.dotlan.net\/map\/([^"]+).*/
+        for (let i = 1 ; i < lines.length - 2 ; i++) {
+            let id = lines[i].substr(0, lines[i].indexOf('"'));
             if (nameRegex.test(lines[i])) {
                 regions[id] = nameRegex.exec(lines[i])[1];
             }
@@ -144,7 +145,7 @@ function main() {
     })
     .then(model => {
         promises.push(createRegion('', dir));
-        for (var id in regions) {
+        for (let id in regions) {
             promises.push(createRegion(regions[id], dir, model));
         }
 	})
