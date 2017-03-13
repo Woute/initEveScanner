@@ -22,6 +22,7 @@ function getSystems(input, regionName) {
 }
 
 function editIndex(input, regionName, systems) {
+	let title = '';
     for (let id in systems) {
         let replacement = '';
         if (regionName == '') {
@@ -33,9 +34,14 @@ function editIndex(input, regionName, systems) {
         }
         input = input.replace(new RegExp('xlink:href="#def' + id + '" />'), replacement);
     }
-    input = input.replace(/http:\/\/evemaps.dotlan.net\/system\//g, '');
-    input = input.replace(/http:\/\/evemaps.dotlan.net\/map\//g, '../');
-    input = input.replace(/" class="sys link-/g, '.html" class="sys link-');
+    input = input.replace(/http:\/\/evemaps.dotlan.net\/system\//g, ''); 
+    if (regionName == '') {
+		input = input.replace(/http:\/\/evemaps.dotlan.net\/map\//g, '/');
+		input = input.replace(/" class="sys link-/g, '/index.html" class="sys link-');
+	} else {
+		input = input.replace(/http:\/\/evemaps.dotlan.net\/map\//g, '../');
+		input = input.replace(/" class="sys link-/g, '.html" class="sys link-');
+	}
     input = input.replace(/<g id="controls"[.\s\S]*\]\]><\/script>/m, '');
     input = input.replace(/onload="init\(evt\)"[^>]*>/, '>');
     input += '\n</html>';
