@@ -52,7 +52,15 @@ function editIndex(input, regionName, systems) {
 
 function writeSystem(regionName, dir, id, data, system) {
     return new Promise(function(resolve, reject) {
-        fs.writeFileAsync(dir + '/' + regionName + '/' + system + '.html', data, 'utf8')
+		let filename = dir + '/' + regionName + '/' + system + '.html'
+		Promise.resolve(true)
+		.then(() => {
+			if (fs.existsSync(filename)) {
+				return fs.unlinkAsync(filename);
+			}
+		})
+		.then(() => {
+			return fs.writeFileAsync(filename, data, 'utf8')
         .then(() => {
             return resolve();
         })
@@ -97,20 +105,27 @@ function createRegion(regionName, dir, model) {
         } else {
             url += regionName;
         }
+        let dirname = dir + '/' + regionName;
+        let filename = dirname + '/index.html';
         url += '.dark.svg';
         Promise.resolve(true)
         .then(() => {
-            if (regionName != '') {
-                return fs.mkdirAsync(dir + '/' + regionName)
+            if (regionName != '' && !fs.existsSync(dirname)) {
+                return fs.mkdirAsync(dirname)
             }
         })
+        .then(() => {
+			if (fs.existsSync(filename)) {
+				return fs.unlinkAsync(filename);
+			}
+		})
         .then(() => {
             return rp({ url:url });
         })
         .then(data => {
             systems = getSystems(data, regionName);
             let result = editIndex(data, regionName, systems);
-            return fs.writeFileAsync(dir + '/' + regionName + '/index.html', result, 'utf8');
+            return fs.writeFileAsync(filename, result, 'utf8');
         })
         .then(() => {
             if (regionName != '') {
