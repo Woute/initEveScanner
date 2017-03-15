@@ -45,7 +45,16 @@ function editIndex(input, regionName, systems) {
     input = input.replace(/<g id="controls"[.\s\S]*\]\]><\/script>/m, '');
     input = input.replace(/onload="init\(evt\)"[^>]*>/, '>');
     input += '\n</html>';
-    let header = '<!DOCTYPE html>\n<html>\n	<head>\n		<meta charset="utf-8" />\n		<meta content="True" name="Handheld">\n		<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">\n		<link rel="stylesheet" href="/resources/style/index.css" media="all"/>\n        <script src="/resources/scripts/common.js" type=text/javascript></script>\n		<title>' + title + '</title>\n	</head>\n   <input id="SSOButton" type="image" src="/resources/images/EVE_SSO_Login_Buttons_Large_Black.png" onclick="authSSO();"/>\n    ';
+    let scripts = '		<script src="/resources/scripts/common.js" type=text/javascript></script>\n';
+    scripts += '		<script src="/resources/scripts/index.js" type=text/javascript></script>\n';
+    let sidebar = '\n<input id="SSOButton" type="image" src="/resources/images/EVE_SSO_Login_Buttons_Large_Black.png" onclick="authSSO();"/>';
+    sidebar += '\n<div id="credentials">\n	<input id="clientID" type="text" placeholder="Your clientID" />';
+    sidebar += '\n	<input id="secret" type="text" placeholder="Your secret" />';
+    sidebar += '\n	<input id="readCredentials" type="button" onclick="readCredentials();" />\n</div>\n\n';
+    if (regionName != '') {
+		scripts += '		<script src="/resources/scripts/region.js" type=text/javascript></script>\n';
+	}
+    let header = '<!DOCTYPE html>\n<html>\n	<head>\n		<meta charset="utf-8" />\n		<meta content="True" name="Handheld">\n		<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">\n		<link rel="stylesheet" href="/resources/style/index.css" media="all"/>\n' + scripts + '		<title>' + title + '</title>\n	</head>\n' + sidebar;
     input = header + input;
     return input;
 }
@@ -61,6 +70,7 @@ function writeSystem(regionName, dir, id, data, system) {
 		})
 		.then(() => {
 			return fs.writeFileAsync(filename, data, 'utf8')
+		})
         .then(() => {
             return resolve();
         })
