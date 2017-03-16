@@ -48,9 +48,9 @@ function editIndex(input, regionName, systems) {
     let scripts = '		<script src="/resources/scripts/common.js" type=text/javascript></script>\n';
     scripts += '		<script src="/resources/scripts/index.js" type=text/javascript></script>\n';
     let sidebar = '\n<input id="SSOButton" type="image" src="/resources/images/EVE_SSO_Login_Buttons_Large_Black.png" onclick="authSSO();"/>';
-    sidebar += '\n<div id="credentials">\n	<input id="clientID" type="text" placeholder="Your clientID" />';
-    sidebar += '\n	<input id="secret" type="text" placeholder="Your secret" />';
-    sidebar += '\n	<input id="readCredentials" type="button" onclick="readCredentials();" />\n</div>\n\n';
+    sidebar += '\n<div id="credentials">\n	<input id="clientID" type="text" placeholder="Your clientID" /><br />';
+    sidebar += '\n	<input id="secret" type="text" placeholder="Your secret" /><br />';
+    sidebar += '\n	<button id="readCredentials" type="button" onclick="readCredentials();">Save</button>\n</div>\n\n';
     if (regionName != '') {
 		scripts += '		<script src="/resources/scripts/region.js" type=text/javascript></script>\n';
 	}
