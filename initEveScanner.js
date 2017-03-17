@@ -44,7 +44,6 @@ function editIndex(input, regionName, systems) {
 	}
     input = input.replace(/<g id="controls"[.\s\S]*\]\]><\/script>/m, '');
     input = input.replace(/onload="init\(evt\)"[^>]*>/, '>');
-    //input += '<script>\n	document.onkeyup = function(e) {\n		if (e.keyCode == 32) {\n			goTo(localStorage.getItem("location"));\n		}\n	}\n</script>';
     input += '\n</html>';
     let scripts = '		<script src="/resources/scripts/common.js" type=text/javascript></script>\n';
     scripts += '		<script src="/resources/scripts/index.js" type=text/javascript></script>\n';
