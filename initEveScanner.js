@@ -27,20 +27,20 @@ function editIndex(input, regionName, systems) {
         let replacement = '';
         if (regionName == '') {
             title = 'New Eden';
-            replacement = 'xlink:href="#def' + id + '" onclick="goTo(\'' + systems[id] + '/index\');" />'
+            replacement = 'xlink:href="#def' + id + '" onclick="goTo(\'' + systems[id] + '\'); return false;" />'
         } else {
             title = regionName;
-            replacement = 'xlink:href="#def' + id + '" onclick="goTo(\'' + systems[id] + '\');" oncontextmenu="setDestination(' + id + '); return false;" />'
+            replacement = 'xlink:href="#def' + id + '" onclick="goTo(\'system\', \'' + regionName + '/' + systems[id] + '\'); return false;" oncontextmenu="setDestination(' + id + '); return false;" />'
         }
         input = input.replace(new RegExp('xlink:href="#def' + id + '" />'), replacement);
     }
-    input = input.replace(/http:\/\/evemaps.dotlan.net\/system\//g, ''); 
+    input = input.replace(/http:\/\/evemaps.dotlan.net\/system\//g, 'javascript:goTo(\'system\', \'' + regionName + '/');
     if (regionName == '') {
 		input = input.replace(/http:\/\/evemaps.dotlan.net\/map\//g, '/');
-		input = input.replace(/" class="sys link-/g, '/index.html" class="sys link-');
-	} else {
-		input = input.replace(/http:\/\/evemaps.dotlan.net\/map\//g, '../');
 		input = input.replace(/" class="sys link-/g, '.html" class="sys link-');
+	} else {
+		input = input.replace(/http:\/\/evemaps.dotlan.net\/map\//g, 'javascript:goTo(\'system\', \'');
+		input = input.replace(/" class="sys link-/g, '\');" class="sys link-');
 	}
     input = input.replace(/<g id="controls"[.\s\S]*\]\]><\/script>/m, '');
     input = input.replace(/onload="init\(evt\)"[^>]*>/, '>');
@@ -59,53 +59,6 @@ function editIndex(input, regionName, systems) {
     return input;
 }
 
-function writeSystem(regionName, dir, id, data, system) {
-    return new Promise(function(resolve, reject) {
-		let filename = dir + '/' + regionName + '/' + system + '.html'
-		Promise.resolve(true)
-		.then(() => {
-			if (fs.existsSync(filename)) {
-				return fs.unlinkAsync(filename);
-			}
-		})
-		.then(() => {
-			return fs.writeFileAsync(filename, data, 'utf8')
-		})
-        .then(() => {
-            return resolve();
-        })
-        .catch(err => {
-            reject(err);
-        })
-    })
-}
-
-function createSystems(regionName, dir, model, systems) {
-    return new Promise(function(resolve, reject) {
-        let promises = [];
-        Promise.resolve(true)
-        .then(() => {
-            for (let i = 0 ; i < Object.keys(systems).length ; ++i) {
-                let id = Object.keys(systems)[i];
-                let name = systems[id];
-                if (!name.match('/')) {
-                    let data = model.replace('__title__', name);
-                    promises.push(writeSystem(regionName, dir, id, data, name));
-                }
-            }
-        })
-        .then(() => {
-            return Promise.all(promises);
-        })
-        .then(() => {
-            return resolve();
-        })
-        .catch(err => {
-            reject(err);
-        })
-    })
-}
-
 function createRegion(regionName, dir, model) {
     return new Promise(function(resolve, reject) {
         let url = 'http://evemaps.dotlan.net/svg/';
@@ -115,15 +68,12 @@ function createRegion(regionName, dir, model) {
         } else {
             url += regionName;
         }
-        let dirname = dir + '/' + regionName;
-        let filename = dirname + '/index.html';
+        let filename = dir + '/index.html';
+        if (regionName != '') {
+			filename = dir + '/' + regionName + '.html';
+		}
         url += '.dark.svg';
         Promise.resolve(true)
-        .then(() => {
-            if (regionName != '' && !fs.existsSync(dirname)) {
-                return fs.mkdirAsync(dirname)
-            }
-        })
         .then(() => {
 			if (fs.existsSync(filename)) {
 				return fs.unlinkAsync(filename);
@@ -136,11 +86,6 @@ function createRegion(regionName, dir, model) {
             systems = getSystems(data, regionName);
             let result = editIndex(data, regionName, systems);
             return fs.writeFileAsync(filename, result, 'utf8');
-        })
-        .then(() => {
-            if (regionName != '') {
-                return createSystems(regionName, dir, model, systems);
-            }
         })
         .then(() => {
             resolve();
