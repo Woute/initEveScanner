@@ -32,10 +32,10 @@ function editIndex(input, regionName, systems) {
         } else {
             title = regionName;
             if (systems[id].match('/')) {
-				replacement = 'xlink:href="#def' + id + '" onclick="goTo(\'' + systems[id].split('/')[0] + '.html?sys=' + id + '\'); return false;" oncontextmenu="setDestination(e, ' + id + '); return false;" />'
+				replacement = 'xlink:href="#def' + id + '" onclick="goTo(\'' + systems[id].split('/')[0] + '.html?sys=' + id + '\'); return false;" oncontextmenu="setDestination(' + id + '); return false;" />'
 				input = input.replace(new RegExp('http:\/\/evemaps.dotlan.net\/map\/.*?" class="sys link-5-' + id), 'javascript:goTo(\'' + systems[id].split('/')[0] + '.html?sys=' + id + '\');" class="sys link-5-' + id);
 			} else {
-				replacement = 'xlink:href="#def' + id + '" onclick="goTo(\'system.html\', \'' + regionName + '/' + systems[id] + '/' + id + '\'); return false;" oncontextmenu="setDestination(e, ' + id + '); return false;" />'
+				replacement = 'xlink:href="#def' + id + '" onclick="goTo(\'system.html\', \'' + regionName + '/' + systems[id] + '/' + id + '\'); return false;" oncontextmenu="setDestination(' + id + '); return false;" />'
 			}
         }
         input = input.replace(new RegExp('xlink:href="#def' + id + '" />'), replacement);
