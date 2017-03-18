@@ -91,10 +91,10 @@ function createRegion(regionName, dir) {
             return fs.writeFileAsync(filename, result, 'utf8');
         })
         .then(() => {
-            resolve();
+            return resolve();
         })
         .catch(err => {
-            reject(err);
+            return reject(err);
         })
     })
 }
