@@ -13,7 +13,7 @@ function getSystems(input, regionName) {
     for (let i = 1 ; i < lines.length - 1 ; i++) {
         let id = lines[i].substr(0, lines[i].indexOf('"'));
         if (nameRegex.test(lines[i])) {
-            systems[id] = '/' + nameRegex.exec(lines[i])[1];
+            systems[id] = nameRegex.exec(lines[i])[1];
         } else if (nameRegex2.test(lines[i])) {
             systems[id] = nameRegex2.exec(lines[i])[1];
         }
@@ -25,22 +25,25 @@ function editIndex(input, regionName, systems) {
 	let title = '';
     for (let id in systems) {
         let replacement = '';
+        let replacement2 = '';
         if (regionName == '') {
             title = 'New Eden';
-            replacement = 'xlink:href="#def' + id + '" onclick="goTo(\'' + systems[id] + '\'); return false;" />'
+            replacement = 'xlink:href="#def' + id + '" onclick="goTo(\'' + systems[id] + '.html\'); return false;" />'
         } else {
             title = regionName;
-            replacement = 'xlink:href="#def' + id + '" onclick="goTo(\'system\', \'' + regionName + '/' + systems[id] + '\'); return false;" oncontextmenu="setDestination(' + id + '); return false;" />'
+            if (systems[id].match('/')) {
+				replacement = 'xlink:href="#def' + id + '" onclick="goTo(\'' + systems[id].split('/')[0] + '.html?sys=' + id + '\'); return false;" oncontextmenu="setDestination(e, ' + id + '); return false;" />'
+				input = input.replace(new RegExp('http:\/\/evemaps.dotlan.net\/map\/.*?" class="sys link-5-' + id), 'javascript:goTo(\'' + systems[id].split('/')[0] + '.html?sys=' + id + '\');" class="sys link-5-' + id);
+			} else {
+				replacement = 'xlink:href="#def' + id + '" onclick="goTo(\'system.html\', \'' + regionName + '/' + systems[id] + '/' + id + '\'); return false;" oncontextmenu="setDestination(e, ' + id + '); return false;" />'
+			}
         }
         input = input.replace(new RegExp('xlink:href="#def' + id + '" />'), replacement);
+        input = input.replace(new RegExp('http:\/\/evemaps.dotlan.net\/system\/.*?" class="sys link-5-' + id), 'javascript:goTo(\'system.html\', \'' + regionName + '/' + systems[id] + '/' + id + '\');" class="sys link-5-' + id);
     }
-    input = input.replace(/http:\/\/evemaps.dotlan.net\/system\//g, 'javascript:goTo(\'system\', \'' + regionName + '/');
     if (regionName == '') {
 		input = input.replace(/http:\/\/evemaps.dotlan.net\/map\//g, '/');
 		input = input.replace(/" class="sys link-/g, '.html" class="sys link-');
-	} else {
-		input = input.replace(/http:\/\/evemaps.dotlan.net\/map\//g, 'javascript:goTo(\'system\', \'');
-		input = input.replace(/" class="sys link-/g, '\');" class="sys link-');
 	}
     input = input.replace(/<g id="controls"[.\s\S]*\]\]><\/script>/m, '');
     input = input.replace(/onload="init\(evt\)"[^>]*>/, '>');
@@ -59,7 +62,7 @@ function editIndex(input, regionName, systems) {
     return input;
 }
 
-function createRegion(regionName, dir, model) {
+function createRegion(regionName, dir) {
     return new Promise(function(resolve, reject) {
         let url = 'http://evemaps.dotlan.net/svg/';
         let systems = {};
@@ -117,12 +120,9 @@ function main() {
         }
     })
     .then(() => {
-        return fs.readFileAsync(dir + '/model.html', 'utf8');
-    })
-    .then(model => {
         promises.push(createRegion('', dir));
         for (let id in regions) {
-            promises.push(createRegion(regions[id], dir, model));
+            promises.push(createRegion(regions[id], dir));
         }
 	})
     .then(() => {
