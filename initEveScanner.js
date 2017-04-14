@@ -53,9 +53,10 @@ function editIndex(input, regionName, systems) {
     let sidebar = '\n<input id="SSOButton" type="image" src="/resources/images/EVE_SSO_Login_Buttons_Large_Black.png" onclick="authSSO();"/>';
     sidebar += '\n<div id="credentials">\n	<input id="clientID" type="text" placeholder="Your clientID" /><br />';
     sidebar += '\n	<input id="secret" type="text" placeholder="Your secret" /><br />';
-    sidebar += '\n	<button id="readCredentials" type="button" onclick="readCredentials();">Save</button>\n</div>\n\n';
+    sidebar += '\n	<button id="readCredentials" type="button" onclick="readCredentials();">Save</button>\n</div>';
     if (regionName != '') {
 		scripts += '		<script src="/resources/scripts/region.js" type=text/javascript></script>\n';
+		sidebar += '\n<select id="selectShow" onchange="selectShow();">\n	<option value="Jumps">Jumps</option>\n	<option value="Kills">Kills</option>\n</select>\n\n'
 	}
     let header = '<!DOCTYPE html>\n<html>\n	<head>\n		<meta charset="utf-8" />\n		<meta content="True" name="Handheld">\n		<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">\n		<link rel="stylesheet" href="/resources/style/index.css" media="all"/>\n' + scripts + '		<title>' + title + '</title>\n	</head>\n' + sidebar;
     input = header + input;
