@@ -1,0 +1,8 @@
+{
+  "name": "initEveScanner",
+  "description": "eve scanner utils",
+  "version": "1.0.0",
+  "engines": {
+    "node": "12.13.0"
+  }
+}
